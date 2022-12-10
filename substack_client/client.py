@@ -133,6 +133,51 @@ class SubstackClient:
         return comments
 
 
+def fetch_new_posts(client: SubstackClient, full: bool, min_overlap: int, posts_path: Path, limit: int = 12):
+    assert min_overlap > 0, min_overlap
+
+    df: Optional[pd.DataFrame] = None
+    if posts_path.exists():
+        print('loading existing path', posts_path)
+        df = pd.read_pickle(posts_path)
+    else:
+        print(f'no existing posts; path {posts_path} does not exist')
+
+    offset = 0
+    overlap_count = 0
+
+    while True:
+        new_posts = client.get_new_posts(offset=offset, limit=limit)
+        if not new_posts:
+            print('no new posts')
+            break
+
+        append_df = pd.DataFrame(new_posts).set_index('id')
+        append_df['post_date'] = pd.to_datetime(append_df['post_date'])
+        overlap = set(append_df.index) & set(df.index) if df is not None else set()
+        print(f'fetched {len(append_df)} posts. overlap={len(overlap)}')
+        print(append_df[['post_date', 'type', 'comment_count', 'reactions', 'title']]
+              .assign(post_date=lambda x: x['post_date'].dt.round('S').dt.tz_localize(None))
+              .to_string(line_width=280, max_colwidth=60, justify='left'))
+
+        if df is None:
+            df = append_df
+        else:
+            if overlap:
+                df = df.drop(list(overlap), axis=0)
+            df = pd.concat([df, append_df]).sort_index()
+        save_using_tmp(posts_path, df.to_pickle)
+
+        overlap_count += len(overlap)
+        if (not full) and overlap_count >= min_overlap:
+            print(f'found {overlap_count=}; exiting early')
+            break
+
+        offset += limit
+
+        random_sleep(1.5, 7.5)
+
+
 def fetch_post_contents(client: SubstackClient, posts: pd.DataFrame, posts_dir: Path, hostname: str):
     posts_dir.mkdir(exist_ok=True)
 
