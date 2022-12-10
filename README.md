@@ -7,6 +7,9 @@ Further, it does not use an official API but instead uses a non-documented REST 
 that serves the website.
 Therefore, the library could break at anytime should that internal API be revised.
 
+You can learn more in the blog post,
+[Developing a Substack client to fetch posts and comments](https://matthagy.substack.com/p/developing-a-custom-substack-front).
+
 ## Installation
 ```shell
 python setup.py
