@@ -1,0 +1,15 @@
+beautifulsoup4==4.11.1
+bs4==0.0.1
+greenlet==2.0.1
+jeepney==0.8.0
+numpy==1.23.5
+pandas==1.5.2
+pycparser==2.21
+pycryptodome==3.16.0
+python-dateutil==2.8.2
+pytz==2022.6
+SecretStorage==3.3.3
+six==1.16.0
+soupsieve==2.3.2.post1
+SQLAlchemy==1.4.44
+tqdm==4.64.1
