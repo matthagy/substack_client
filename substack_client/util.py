@@ -151,14 +151,18 @@ def load_all_comments(paths: Iterable[Union[Path, str]]) -> pd.DataFrame:
     return df
 
 
-def load_article_content(post_id: int, posts_dir: Path) -> PageElement:
-    with posts_dir.joinpath(f'{post_id}.html').open('rt') as fp:
-        soup = BeautifulSoup(fp, features="html.parser")
+def extract_contents(soup: BeautifulSoup, *, post_id: Optional[int] = None) -> PageElement:
     found = soup.find_all(name='div', attrs={'class': 'available-content'})
     if len(found) != 1:
         raise ValueError(f'{post_id=} had {len(found)=} content elements')
     content, = found
     return content
+
+
+def load_article_content(post_id: int, posts_dir: Path) -> PageElement:
+    with posts_dir.joinpath(f'{post_id}.html').open('rt') as fp:
+        soup = BeautifulSoup(fp, features="html.parser")
+    return extract_contents(soup, post_id=post_id)
 
 
 def extract_text(post_id: int, *, posts_dir: Path) -> tuple[int, str]:
