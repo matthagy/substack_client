@@ -12,7 +12,7 @@ You can learn more in the blog post,
 
 ## Installation
 ```shell
-python setup.py
+python setup.py install
 ```
 
 ## Example
